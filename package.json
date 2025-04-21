@@ -1,6 +1,6 @@
 {
   "name": "ui5-version-check",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Validation UI5 versions",
   "keywords": [
     "UI5",
@@ -25,6 +25,7 @@
     "doc": "typedoc --out docs/typedoc src",
     "format": "prettier --write .",
     "lint": "eslint .",
+    "publish": "cd ./dist/src && npm publish",
     "start": "ts-node examples/index",
     "test": "npm run lint && npm run build && npm run test:run",
     "test:run": "jest"
