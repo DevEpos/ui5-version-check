@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/ui5-version-check.svg)](https://badge.fury.io/js/ui5-version-check)
+
 # UI5 Version Tools
 
 Provides CLI and tools to check for invalid/outdated UI5 versions in a given project.
