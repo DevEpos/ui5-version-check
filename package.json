@@ -12,6 +12,7 @@
   },
   "author": "DevEpos",
   "license": "MIT",
+  "main": "index.js",
   "bin": {
     "ui5vc": "bin/cli.js"
   },
@@ -25,8 +26,7 @@
     "doc": "typedoc --out docs/typedoc src",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "publish": "cd ./dist/src && npm publish",
-    "start": "ts-node examples/index",
+    "publish": "./scripts/publish.sh",
     "test": "npm run lint && npm run build && npm run test:run",
     "test:run": "jest"
   },
