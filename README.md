@@ -1,0 +1,71 @@
+# UI5 Version Tools
+
+Provides CLI and tools to check for invalid/outdated UI5 versions in a given project.
+
+Currently the following files can be checked:
+
+- `manifest.json`: Manifest descriptor of OpenUI5/SAPUI5 applications
+
+## CLI
+
+Currently available CLI commands
+
+```
+USAGE
+
+    ui5vc <command> [<args>]
+
+COMMANDS
+
+    c | check    checks UI5 versions
+    h | help     prints cli help or help for commands
+    v | version  prints version information
+
+Learn more about each command using:
+ui5vc help <command>
+ui5vc h <command>
+```
+
+Where the `check` command has the following options:
+
+```
+SYNOPSIS
+
+    ui5vc check <options>
+    ui5vc c <options>
+
+    Checks the validity of UI5 versions
+
+OPTIONS
+
+    -p | --basePath <path>
+
+        Base path to start
+
+    -m | --manifestPaths <paths>
+
+        Paths to manifest.json files
+
+    --allowedDaysBeforeEocp
+
+        Number of allowed days before the end of eocp quarter (e.g. Q1/2024).
+        The default for this option is 30 days
+
+    -f | --fix
+
+        If provided outdated versions are automatically fixed
+
+    --useLTS
+
+        If provided, outdated versions are updated with the latest available
+        LTS version.
+
+    --eomAllowed
+
+        If provided, versions that reached only the status "End of Maintenance"
+        will produce warnings only and not result in an exit code <> 0.
+```
+
+## License
+
+This project is [licensed](./LICENSE) under MIT.

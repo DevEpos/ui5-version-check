@@ -1,0 +1,57 @@
+{
+  "name": "ui5-version-check",
+  "version": "0.0.5",
+  "description": "Validation UI5 versions",
+  "keywords": [
+    "UI5",
+    "CLI"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevEpos/ui5-version-check.git"
+  },
+  "author": "DevEpos",
+  "license": "MIT",
+  "bin": {
+    "ui5vc": "bin/cli.js"
+  },
+  "bugs": {
+    "url": "https://github.com/DevEpos/ui5-version-check/issues"
+  },
+  "homepage": "https://github.com/DevEpos/ui5-version-check#README",
+  "scripts": {
+    "build": "tsc && cp README.md package.json LICENSE dist/src",
+    "clean": "rimraf dist coverage",
+    "doc": "typedoc --out docs/typedoc src",
+    "format": "prettier --write .",
+    "lint": "eslint .",
+    "start": "ts-node examples/index",
+    "test": "npm run lint && npm run build && npm run test:run",
+    "test:run": "jest"
+  },
+  "dependencies": {
+    "glob": "^11.0.1",
+    "semver": "^7.7.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^18.19.39",
+    "@types/semver": "^7.7.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-prettier": "^5.2.6",
+    "prettier": "^3.3.2",
+    "prettier-eslint": "^16.3.0",
+    "prettier-eslint-cli": "^8.0.1",
+    "rimraf": "^6.0.1",
+    "ts-jest": "^29.3.1",
+    "ts-node": "^10.9.2",
+    "ts-script": "^1.0.0",
+    "typedoc": "^0.26.1",
+    "typescript": "~5.4.2",
+    "typescript-eslint": "^8.29.1"
+  }
+}
