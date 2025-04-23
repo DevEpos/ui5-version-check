@@ -99,14 +99,15 @@ export default {
       { cwd: checkOpts.basePath }
     );
 
-    const versionCheck = new UI5VersionCheck(
-      checkOpts.basePath,
-      resolvedManifestPaths,
-      checkOpts.fix,
-      checkOpts.useLTS,
-      checkOpts.eomAllowed,
-      checkOpts.allowedDaysBeforeEocp
-    );
+    const versionCheck = new UI5VersionCheck({
+      repoPath: checkOpts.basePath,
+      manifestPaths: resolvedManifestPaths,
+      fixOutdated: checkOpts.fix,
+      useLTS: checkOpts.useLTS,
+      eomAllowed: checkOpts.eomAllowed,
+      allowedDaysBeforeEocp: checkOpts.allowedDaysBeforeEocp
+    });
+
     versionCheck
       .run()
       .then(() => {

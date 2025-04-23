@@ -12,9 +12,10 @@ export type ManifestVersion = {
 
 export type ManifestCheckSummary = {
   relPath: string;
-  strVer: string;
-  newVersion: string;
-  status: string;
+  oldVers: string;
+  newVers: string;
+  status: "error" | "warn" | "ok";
+  statusIcon: string;
   statusText: string;
 };
 
@@ -78,12 +79,13 @@ export class UI5AppManifest {
     this.versionStatusText = messages.map((m) => m.msg).join("<br/>");
   }
 
-  getSummary() {
+  getCheckSummary(): ManifestCheckSummary {
     return {
       relPath: this.relPath,
-      strVer: this.version?.strVer ?? "-",
-      newVersion: this.newVersion,
-      status: this.versionStatus === "ok" ? "✅" : this.versionStatus === "warn" ? "⚠️" : "❌",
+      oldVers: this.version?.strVer ?? "-",
+      newVers: this.newVersion,
+      status: this.versionStatus,
+      statusIcon: this.versionStatus === "ok" ? "✅" : this.versionStatus === "warn" ? "⚠️" : "❌",
       statusText: this.versionStatusText
     };
   }
