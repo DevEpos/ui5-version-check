@@ -1,6 +1,8 @@
-[![npm version](https://badge.fury.io/js/ui5-version-check.svg)](https://badge.fury.io/js/ui5-version-check) ![](https://img.shields.io/badge/Status-beta-orange)
-
 # UI5 Version Tools
+
+[![npm version](https://badge.fury.io/js/ui5-version-check.svg)](https://badge.fury.io/js/ui5-version-check)
+![Status](https://img.shields.io/badge/Status-beta-orange)
+[![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
 > ⚠️ CLI and API are are not final yet and still subject to change ⚠️
 
