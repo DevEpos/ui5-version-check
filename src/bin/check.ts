@@ -90,7 +90,7 @@ function printSummary(checkSummary: ManifestCheckSummary[]) {
   // Calculate column widths based on the longest value in each column
   const columnWidths = headers.map((header, index) => {
     const maxContentLength = checkSummary.reduce((max, row) => {
-      const value = [row.relPath, row.oldVers, row.newVers, row.status, row.statusText][index];
+      const value = [row.relPath, row.oldVers, row.newVers, row.statusIcon, row.statusText][index];
       return Math.max(max, value.length);
     }, header.length);
     return maxContentLength;
@@ -103,8 +103,10 @@ function printSummary(checkSummary: ManifestCheckSummary[]) {
 
   // Print each row of the summary
   checkSummary.forEach((row) => {
-    const values = [row.relPath, row.oldVers, row.newVers, row.status, row.statusText];
-    console.log(`| ${values.map((value, i) => value.padEnd(columnWidths[i])).join(" | ")} |`);
+    const values = [row.relPath, row.oldVers, row.newVers, row.statusIcon, row.statusText];
+    console.log(
+      `| ${values.map((value, i) => value.padEnd(i === 3 ? columnWidths[i] - 1 : columnWidths[i])).join(" | ")} |`
+    );
   });
 }
 
