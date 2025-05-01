@@ -2,6 +2,7 @@ import { parseArgs, ParseArgsConfig } from "util";
 import { UI5VersionCheck } from "../lib/ui5-version-check";
 import path from "path";
 import { glob } from "glob";
+import { ManifestCheckSummary } from "../lib/ui5-manifest";
 
 const helpText = `
 SYNOPSIS
@@ -9,7 +10,8 @@ SYNOPSIS
     ui5vc check <options>
     ui5vc c <options>
 
-    Checks the validity of UI5 versions
+    Checks the validity of UI5 versions. Via the option '--fix' it also possible
+    to correct invalid versions
 
 OPTIONS
 
@@ -19,7 +21,8 @@ OPTIONS
 
     -m | --manifestPaths <paths>
 
-        Paths to manifest.json files
+        Paths to manifest.json files. If ommitted every manifest.json file starting from the
+        provided basePath will be checked
 
     --allowedDaysBeforeEocp
 
@@ -78,6 +81,33 @@ function checkMandatory(opts: Partial<CheckOptions>) {
   if (!opts.basePath) throw new Error("Mandatory option 'basePath' not provided");
 }
 
+function printSummary(checkSummary: ManifestCheckSummary[]) {
+  console.log(
+    `${checkSummary.filter((c) => c.status === "error").length} of ${checkSummary.length} manifest.json files contain version errors!\n`
+  );
+  const headers = ["Manifest Path", "Old Version", "New Version", "Status", "Status Message"];
+
+  // Calculate column widths based on the longest value in each column
+  const columnWidths = headers.map((header, index) => {
+    const maxContentLength = checkSummary.reduce((max, row) => {
+      const value = [row.relPath, row.oldVers, row.newVers, row.status, row.statusText][index];
+      return Math.max(max, value.length);
+    }, header.length);
+    return maxContentLength;
+  });
+  // Print the header row
+  console.log(`| ${headers.map((header, i) => header.padEnd(columnWidths[i])).join(" | ")} |`);
+
+  // Print the separator row
+  console.log(`| ${columnWidths.map((width) => "-".repeat(width)).join(" | ")} |`);
+
+  // Print each row of the summary
+  checkSummary.forEach((row) => {
+    const values = [row.relPath, row.oldVers, row.newVers, row.status, row.statusText];
+    console.log(`| ${values.map((value, i) => value.padEnd(columnWidths[i])).join(" | ")} |`);
+  });
+}
+
 export default {
   help: () => console.log(helpText),
   exec: async () => {
@@ -111,9 +141,9 @@ export default {
     versionCheck
       .run()
       .then(() => {
-        console.log(versionCheck.summary);
+        printSummary(versionCheck.summary);
+
         if (versionCheck.hasErrors) {
-          console.log(`Invalid versions in manifest files detected!`);
           process.exit(1);
         }
       })
