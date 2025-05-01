@@ -60,7 +60,7 @@ export class UI5AppManifest {
     writeFileSync(this.fullPath, manifestContent, { encoding: "utf8" });
     this.newVersion = version;
     /* istanbul ignore next */
-    this.versionStatusText = `Version has been updated to latest ${isLTS ? "LTS" : ""} version`;
+    this.versionStatusText = `Version has been updated to latest${isLTS ? " LTS " : " "}version`;
     this.versionStatus = "ok";
   }
 
