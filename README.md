@@ -1,4 +1,4 @@
-# UI5 Version Tools
+# UI5 Version Check
 
 [![npm version](https://badge.fury.io/js/ui5-version-check.svg)](https://badge.fury.io/js/ui5-version-check)
 ![Status](https://img.shields.io/badge/Status-beta-orange)
