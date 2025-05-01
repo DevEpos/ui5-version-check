@@ -40,17 +40,19 @@ SYNOPSIS
     ui5vc check <options>
     ui5vc c <options>
 
-    Checks the validity of UI5 versions
+    Checks the validity of UI5 versions. Via the option '--fix' it also possible
+    to correct invalid versions
 
 OPTIONS
 
     -p | --basePath <path>
 
-        Base path to start
+        Base path to start 
 
     -m | --manifestPaths <paths>
 
-        Paths to manifest.json files
+        Paths to manifest.json files. If ommitted every manifest.json file starting from the
+        provided basePath will be checked
 
     --allowedDaysBeforeEocp
 
