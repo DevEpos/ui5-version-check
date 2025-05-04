@@ -30,4 +30,14 @@ describe("index.ts", () => {
     expect(index.latestVersion).toBeDefined();
     expect(typeof index.latestVersion).toBe("function");
   });
+
+  it("should export getLogger", () => {
+    expect(index.getLogger).toBeDefined();
+    expect(typeof index.getLogger).toBe("function");
+  });
+
+  it("should export setLogger", () => {
+    expect(index.setLogger).toBeDefined();
+    expect(typeof index.setLogger).toBe("function");
+  });
 });
