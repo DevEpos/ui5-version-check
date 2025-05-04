@@ -1,6 +1,6 @@
 # UI5 Version Check
 
-[![npm version](https://badge.fury.io/js/ui5-version-check.svg)](https://badge.fury.io/js/ui5-version-check)
+[![npm version](https://img.shields.io/npm/v/ui5-version-check.svg?style=flat)](https://www.npmjs.com/package/ui5-version-check)
 ![CI](https://github.com/DevEpos/ui5-version-check/actions/workflows/ci.yml/badge.svg)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
