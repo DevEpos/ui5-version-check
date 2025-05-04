@@ -17,7 +17,7 @@ jest.mock("../../src/lib/ui5-version-check", () => ({
 const mockExit = jest.spyOn(process, "exit").mockImplementation(() => undefined as never);
 const mockLog = jest.spyOn(console, "log").mockImplementation(() => {});
 
-describe("check", () => {
+describe("cli command check", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -54,7 +54,7 @@ describe("check", () => {
 
     expect(glob).toHaveBeenCalledWith(["**/manifest.json"], { cwd: "/test/path" });
     expect(UI5VersionCheck).toHaveBeenCalledWith({
-      repoPath: "/test/path",
+      basePath: "/test/path",
       manifestPaths: ["/test/path/manifest.json"],
       fixOutdated: false,
       useLTS: false,
@@ -78,7 +78,7 @@ describe("check", () => {
 
     expect(glob).toHaveBeenCalledWith(["**/manifest.json"], { cwd: "/test/path" });
     expect(UI5VersionCheck).toHaveBeenCalledWith({
-      repoPath: "/test/path",
+      basePath: "/test/path",
       manifestPaths: ["/test/path/manifest.json"],
       fixOutdated: false,
       useLTS: false,

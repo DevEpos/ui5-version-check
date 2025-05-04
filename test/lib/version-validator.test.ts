@@ -2,7 +2,7 @@ import semver from "semver";
 import { BaseVersionInfo, UI5Version, UI5VersionPatch } from "../../src/lib/ui5-version-api";
 import { VersionValidator } from "../../src/lib/version-validation";
 
-describe("version-validation.ts", () => {
+describe("Version Validation.ts", () => {
   beforeEach(() => {
     jest.useFakeTimers();
   });
@@ -26,10 +26,11 @@ describe("version-validation.ts", () => {
         strVer: "1.117.*",
         toPatchUpdateVers: () => "1.117.*"
       },
-      new Map([[vutStr, new UI5Version(vutSemver!, "Q1/2026", true, false)]]),
-      new Map([["1.117.1", new UI5VersionPatch(semver.coerce("1.117.1")!, "Q1/2026")]]),
-      30,
-      false
+      {
+        versions: new Map([[vutStr, new UI5Version(vutSemver!, "Q1/2026", true, false)]]),
+        patches: new Map([["1.117.1", new UI5VersionPatch(semver.coerce("1.117.1")!, "Q1/2026")]])
+      },
+      { allowedDaysBeforeEocp: 30, eomAllowed: false }
     );
     expect(validator.validate()).toEqual({ valid: true, messages: [] });
   });
@@ -45,10 +46,11 @@ describe("version-validation.ts", () => {
         strVer: "1.117.1",
         toPatchUpdateVers: () => "1.117.*"
       },
-      new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, false)]]),
-      new Map([["1.117.1", new UI5VersionPatch(semver.coerce("1.117.1")!, "Q1/2026")]]),
-      30,
-      false
+      {
+        versions: new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, false)]]),
+        patches: new Map([["1.117.1", new UI5VersionPatch(semver.coerce("1.117.1")!, "Q1/2026")]])
+      },
+      { allowedDaysBeforeEocp: 30, eomAllowed: false }
     );
     expect(validator.validate()).toEqual({ valid: true, messages: [] });
   });
@@ -64,10 +66,8 @@ describe("version-validation.ts", () => {
         strVer: "1.117.*",
         toPatchUpdateVers: () => "1.117.*"
       },
-      new Map(),
-      new Map(),
-      30,
-      false
+      { versions: new Map(), patches: new Map() },
+      { allowedDaysBeforeEocp: 30, eomAllowed: false }
     );
     expect(validator.validate()).toEqual({
       valid: false,
@@ -86,10 +86,8 @@ describe("version-validation.ts", () => {
         strVer: "1.117.*",
         toPatchUpdateVers: () => "1.117.*"
       },
-      new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, true)]]),
-      new Map(),
-      30,
-      false
+      { versions: new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, true)]]), patches: new Map() },
+      { allowedDaysBeforeEocp: 30, eomAllowed: false }
     );
     expect(validator.validate()).toEqual({
       valid: false,
@@ -108,10 +106,8 @@ describe("version-validation.ts", () => {
         strVer: "1.117.*",
         toPatchUpdateVers: () => "1.117.*"
       },
-      new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, true)]]),
-      new Map(),
-      30,
-      true
+      { versions: new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, true)]]), patches: new Map() },
+      { allowedDaysBeforeEocp: 30, eomAllowed: true }
     );
     expect(validator.validate()).toEqual({
       valid: true,
@@ -130,10 +126,8 @@ describe("version-validation.ts", () => {
         strVer: "1.117.1",
         toPatchUpdateVers: () => "1.117.*"
       },
-      new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, true)]]),
-      new Map(),
-      30,
-      false
+      { versions: new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, true)]]), patches: new Map() },
+      { allowedDaysBeforeEocp: 30, eomAllowed: false }
     );
     expect(validator.validate()).toEqual({
       valid: false,
@@ -152,10 +146,8 @@ describe("version-validation.ts", () => {
         strVer: "1.117.1",
         toPatchUpdateVers: () => "1.117.*"
       },
-      new Map(),
-      new Map(),
-      30,
-      false
+      { versions: new Map(), patches: new Map() },
+      { allowedDaysBeforeEocp: 30, eomAllowed: false }
     );
     expect(validator.validate()).toEqual({
       valid: false,
@@ -174,10 +166,8 @@ describe("version-validation.ts", () => {
         strVer: "1.117.1",
         toPatchUpdateVers: () => "1.117.*"
       },
-      new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, false)]]),
-      new Map(),
-      30,
-      false
+      { versions: new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, false)]]), patches: new Map() },
+      { allowedDaysBeforeEocp: 30, eomAllowed: false }
     );
     expect(validator.validate()).toEqual({
       valid: false,
@@ -196,10 +186,8 @@ describe("version-validation.ts", () => {
         strVer: "1.117.*",
         toPatchUpdateVers: () => "1.117.*"
       },
-      new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, false)]]),
-      new Map(),
-      10,
-      false
+      { versions: new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, false)]]), patches: new Map() },
+      { allowedDaysBeforeEocp: 10, eomAllowed: false }
     );
     expect(validator.validate()).toEqual({
       valid: true,
@@ -218,10 +206,8 @@ describe("version-validation.ts", () => {
         strVer: "1.117.*",
         toPatchUpdateVers: () => "1.117.*"
       },
-      new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, false)]]),
-      new Map(),
-      30,
-      false
+      { versions: new Map([["1.117.*", new UI5Version(vutSemver!, "Q1/2026", true, false)]]), patches: new Map() },
+      { allowedDaysBeforeEocp: 30, eomAllowed: false }
     );
     expect(validator.validate()).toEqual({
       valid: false,

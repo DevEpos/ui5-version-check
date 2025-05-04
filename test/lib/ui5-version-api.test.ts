@@ -1,7 +1,7 @@
 import { jest } from "@jest/globals";
-import { mockNodeFetch } from "../__fixtures__/fetch";
-import { BaseVersionInfo, fetchMaintainedVersions, UI5Version } from "../../src/lib/ui5-version-api";
 import semver from "semver";
+import { BaseVersionInfo, fetchMaintainedVersions, UI5Version } from "../../src/lib/ui5-version-api";
+import { mockNodeFetch } from "../__fixtures__/fetch";
 
 const { mock: fetchMock, mockFetchResponse } = mockNodeFetch();
 

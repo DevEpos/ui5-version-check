@@ -2,7 +2,7 @@ import help from "../../src/bin/help";
 
 const mockLog = jest.spyOn(console, "log").mockImplementation(() => {});
 
-describe("help", () => {
+describe("cli command help", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });

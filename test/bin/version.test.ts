@@ -8,7 +8,7 @@ jest.mock("node:fs", () => ({
 
 const mockLog = jest.spyOn(console, "log").mockImplementation(() => {});
 
-describe("version", () => {
+describe("cli command version", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });

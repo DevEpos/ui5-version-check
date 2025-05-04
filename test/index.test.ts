@@ -15,4 +15,19 @@ describe("index.ts", () => {
     expect(index.VersionValidator).toBeDefined();
     expect(typeof index.VersionValidator).toBe("function");
   });
+
+  it("should export validateVersion", () => {
+    expect(index.validateVersion).toBeDefined();
+    expect(typeof index.validateVersion).toBe("function");
+  });
+
+  it("should export parseVersion", () => {
+    expect(index.parseVersion).toBeDefined();
+    expect(typeof index.parseVersion).toBe("function");
+  });
+
+  it("should export latestVersion", () => {
+    expect(index.latestVersion).toBeDefined();
+    expect(typeof index.latestVersion).toBe("function");
+  });
 });

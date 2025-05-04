@@ -29,7 +29,7 @@ describe("ui5-version-check.ts", () => {
     mockFetchResponse(mockedVersionsOverview);
     jest.spyOn(fs, "writeFileSync").mockImplementation();
 
-    const versionChecker = new UI5VersionCheck({ repoPath, manifestPaths, useLTS: false, eomAllowed: true });
+    const versionChecker = new UI5VersionCheck({ basePath: repoPath, manifestPaths, useLTS: false, eomAllowed: true });
     await expect(versionChecker.run()).resolves.toBeUndefined();
     expect(versionChecker.hasErrors).toBeTruthy();
     expect(versionChecker.summary.filter((i) => i.status === "ok")).toHaveLength(1);
@@ -41,7 +41,7 @@ describe("ui5-version-check.ts", () => {
     mockFetchResponse(mockedVersionsOverview);
     jest.spyOn(fs, "writeFileSync").mockImplementation();
 
-    const versionChecker = new UI5VersionCheck({ repoPath, manifestPaths, eomAllowed: false, useLTS: true });
+    const versionChecker = new UI5VersionCheck({ basePath: repoPath, manifestPaths, eomAllowed: false, useLTS: true });
     await expect(versionChecker.run()).resolves.toBeUndefined();
     expect(versionChecker.hasErrors).toBeTruthy();
     expect(versionChecker.summary.filter((i) => i.status === "ok")).toHaveLength(1);
@@ -53,7 +53,7 @@ describe("ui5-version-check.ts", () => {
     mockFetchResponse(mockedVersionsOverview);
     jest.spyOn(fs, "writeFileSync").mockImplementation();
 
-    const versionChecker = new UI5VersionCheck({ repoPath, manifestPaths, useLTS: false, eomAllowed: false });
+    const versionChecker = new UI5VersionCheck({ basePath: repoPath, manifestPaths, useLTS: false, eomAllowed: false });
     await expect(versionChecker.run()).resolves.toBeUndefined();
     expect(versionChecker.hasErrors).toBeTruthy();
     expect(versionChecker.summary.filter((i) => i.status === "ok")).toHaveLength(1);
@@ -65,7 +65,7 @@ describe("ui5-version-check.ts", () => {
     mockFetchResponse(mockedVersionsOverview);
     jest.spyOn(fs, "writeFileSync").mockImplementation();
 
-    const versionCheck = new UI5VersionCheck({ repoPath, manifestPaths, fixOutdated: true, useLTS: false, eomAllowed: true });
+    const versionCheck = new UI5VersionCheck({ basePath: repoPath, manifestPaths, fixOutdated: true, useLTS: false, eomAllowed: true });
     await expect(versionCheck.run()).resolves.toBeUndefined();
     expect(versionCheck.updatedFiles.length).toBeGreaterThan(0);
   });
@@ -78,8 +78,8 @@ describe("ui5-version-check.ts", () => {
     mockFetchResponse(clonedMockVersOverview);
     jest.spyOn(fs, "writeFileSync").mockImplementation();
 
-    await expect(new UI5VersionCheck({ repoPath, manifestPaths, fixOutdated: true }).run()).rejects.toThrow(
-      new Error("No valid LTS UI5 version found to update")
+    await expect(new UI5VersionCheck({ basePath: repoPath, manifestPaths, fixOutdated: true }).run()).rejects.toThrow(
+      new Error("No valid LTS UI5 version found")
     );
   });
 
@@ -94,13 +94,13 @@ describe("ui5-version-check.ts", () => {
     mockFetchResponse(clonedMockVersOverview);
     jest.spyOn(fs, "writeFileSync").mockImplementation();
 
-    await expect(new UI5VersionCheck({ repoPath, manifestPaths, fixOutdated: true, useLTS: false, eomAllowed: true }).run()).rejects.toThrow(
-      new Error("No valid UI5 version found to update")
+    await expect(new UI5VersionCheck({ basePath: repoPath, manifestPaths, fixOutdated: true, useLTS: false, eomAllowed: true }).run()).rejects.toThrow(
+      new Error("No valid UI5 version found")
     );
   });
 
   it("Tests version validation > breaks because manifest version is undefined", async () => {
-    const versionChecker = new UI5VersionCheck({ repoPath, manifestPaths, useLTS: false, eomAllowed: false });
+    const versionChecker = new UI5VersionCheck({ basePath: repoPath, manifestPaths, useLTS: false, eomAllowed: false });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((versionChecker as any).validateVersion({})).toEqual({ valid: false, messages: [] });
   });
