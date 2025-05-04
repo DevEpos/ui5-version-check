@@ -22,6 +22,7 @@
   "homepage": "https://github.com/DevEpos/ui5-version-check#README",
   "scripts": {
     "build": "tsc && cp README.md package.json LICENSE dist/src",
+    "ci-test": "jest",
     "clean": "rimraf dist coverage",
     "coverage": "npx make-coverage-badge --output-path ./badges/coverage.svg",
     "doc": "typedoc --out docs/typedoc src",
