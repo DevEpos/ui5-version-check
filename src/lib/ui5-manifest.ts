@@ -1,14 +1,6 @@
 import { readFileSync, writeFileSync } from "fs";
 import path from "path";
-import * as semver from "semver";
-import { ValidationMessage } from "./version-validation";
-
-export type ManifestVersion = {
-  strVer: string;
-  semver: semver.SemVer;
-  patchUpdates: boolean;
-  toPatchUpdateVers(): string;
-};
+import { parseVersion, UI5VersionInfo, ValidationMessage } from "./version-validation";
 
 export type ManifestCheckSummary = {
   relPath: string;
@@ -23,7 +15,7 @@ export class UI5AppManifest {
   relPath: string;
   fullPath: string;
   content: string;
-  version: ManifestVersion | undefined;
+  version: UI5VersionInfo | undefined;
   newVersion = "-";
   versionStatus: "ok" | "warn" | "error" = "ok";
   versionStatusText = "-";
@@ -35,21 +27,15 @@ export class UI5AppManifest {
     this.version = this.determineVersion();
   }
 
-  private determineVersion(): ManifestVersion | undefined {
+  private determineVersion(): UI5VersionInfo | undefined {
     const manifestJson = JSON.parse(this.content) as { "sap.platform.cf": { ui5VersionNumber?: string } };
     const currentVersionStr = manifestJson["sap.platform.cf"]?.ui5VersionNumber?.replace(/[xX]/, "*");
     if (!currentVersionStr) {
       this.versionStatusText = `No section 'sap.platform.cf/ui5VersionNumber' found. Skipping check`;
       return;
     }
-    const currentSemver = semver.coerce(currentVersionStr);
 
-    return {
-      strVer: currentVersionStr,
-      semver: currentSemver!,
-      patchUpdates: /\d+\.\d+\.\*/.test(currentVersionStr),
-      toPatchUpdateVers: () => `${currentSemver?.major}.${currentSemver?.minor}.*`
-    };
+    return parseVersion(currentVersionStr);
   }
 
   updateVersion(version: string, isLTS: boolean) {

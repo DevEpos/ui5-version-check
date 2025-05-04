@@ -1,8 +1,8 @@
-import { parseArgs, ParseArgsConfig } from "util";
-import { UI5VersionCheck } from "../lib/ui5-version-check";
-import path from "path";
 import { glob } from "glob";
+import path from "path";
+import { parseArgs, ParseArgsConfig } from "util";
 import { ManifestCheckSummary } from "../lib/ui5-manifest";
+import { UI5VersionCheck } from "../lib/ui5-version-check";
 
 const helpText = `
 SYNOPSIS
@@ -88,6 +88,7 @@ function printSummary(checkSummary: ManifestCheckSummary[]) {
     return;
   }
 
+  console.log();
   console.log(
     `${checkSummary.filter((c) => c.status === "error").length} of ${checkSummary.length} manifest.json files contain version errors!\n`
   );
@@ -101,19 +102,20 @@ function printSummary(checkSummary: ManifestCheckSummary[]) {
     }, header.length);
     return maxContentLength;
   });
-  // Print the header row
-  console.log(`| ${headers.map((header, i) => header.padEnd(columnWidths[i])).join(" | ")} |`);
 
-  // Print the separator row
-  console.log(`| ${columnWidths.map((width) => "-".repeat(width)).join(" | ")} |`);
+  const summaryTable = [];
+  summaryTable.push(`| ${headers.map((header, i) => header.padEnd(columnWidths[i])).join(" | ")} |`);
+  summaryTable.push(`| ${columnWidths.map((width) => "-".repeat(width)).join(" | ")} |`);
 
   // Print each row of the summary
   checkSummary.forEach((row) => {
     const values = [row.relPath, row.oldVers, row.newVers, row.statusIcon, row.statusText];
-    console.log(
+    summaryTable.push(
       `| ${values.map((value, i) => value.padEnd(i === 3 ? columnWidths[i] - 1 : columnWidths[i])).join(" | ")} |`
     );
   });
+
+  console.log(summaryTable.join("\n"));
 }
 
 export default {
@@ -145,7 +147,7 @@ export default {
     }
 
     const versionCheck = new UI5VersionCheck({
-      repoPath: checkOpts.basePath,
+      basePath: checkOpts.basePath,
       manifestPaths: resolvedManifestPaths,
       fixOutdated: checkOpts.fix,
       useLTS: checkOpts.useLTS,

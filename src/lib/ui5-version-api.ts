@@ -1,4 +1,5 @@
 import * as semver from "semver";
+import { isPromise } from "util/types";
 
 const VERSION_OVERVIEW_URL = "https://ui5.sap.com/versionoverview.json";
 
@@ -25,7 +26,7 @@ type EocpInfo = {
   eocpDate: Date;
 };
 
-export type UI5VersionOverview = {
+export type UI5Versions = {
   versions: Map<string, UI5Version>;
   patches: Map<string, UI5VersionPatch>;
 };
@@ -33,7 +34,7 @@ export type UI5VersionOverview = {
 /**
  * @returns array of valid UI5 versions to be used in SAP BTP
  */
-export async function fetchMaintainedVersions(): Promise<UI5VersionOverview> {
+export async function fetchMaintainedVersions(): Promise<UI5Versions> {
   const res = await fetch(VERSION_OVERVIEW_URL);
   const ui5Versions = (await res.json()) as { versions: ExternalUI5VersionInfo[]; patches: ExternalUI5VersionPatch[] };
 
@@ -57,7 +58,7 @@ export async function fetchMaintainedVersions(): Promise<UI5VersionOverview> {
 
 export abstract class BaseVersionInfo {
   private static quarterToEocpInfo = new Map<string, EocpInfo>();
-  private eocpYearQuarter;
+  private eocpYearQuarter: string;
   semver: semver.SemVer;
 
   constructor(semver: semver.SemVer, eocp: string) {
@@ -122,3 +123,50 @@ export class UI5Version extends BaseVersionInfo {
 }
 
 export class UI5VersionPatch extends BaseVersionInfo {}
+
+export const isUI5VersionList = (obj: unknown): obj is UI5Versions =>
+  typeof obj === "object" && obj && "versions" in obj && "patches" in obj;
+
+/**
+ * Fetches valid UI5 versions and returns the latest one
+ * @param lts if `true` only LTS versions are considered
+ */
+export async function latestVersion(lts?: boolean): Promise<string>;
+
+/**
+ * Returns the latest version from the given list of UI5 versions
+ * @param versions list UI5 versions
+ * @param lts if `true` only LTS versions are considered
+ */
+export function latestVersion(versions: UI5Versions, lts?: boolean): string;
+export function latestVersion(versionsOrLts?: boolean | UI5Versions, lts?: boolean): Promise<string> | string {
+  let versionOverview: UI5Versions | Promise<UI5Versions>;
+  let ltsOpt: boolean | undefined;
+
+  if (isUI5VersionList(versionsOrLts)) {
+    versionOverview = versionsOrLts;
+    ltsOpt = !!lts;
+  } else {
+    versionOverview = fetchMaintainedVersions();
+    ltsOpt = !!versionsOrLts;
+  }
+
+  const findVersion = (versionList: UI5Versions): string | undefined => {
+    for (const [vId, v] of versionList.versions) {
+      if (v.eocp || v.eom) continue;
+      if (ltsOpt && !v.lts) continue;
+      return vId;
+    }
+    if (ltsOpt) {
+      throw new Error(`No valid LTS UI5 version found`);
+    } else {
+      throw new Error(`No valid UI5 version found`);
+    }
+  };
+
+  if (isPromise(versionOverview)) {
+    return versionOverview.then(findVersion);
+  } else {
+    return findVersion(versionOverview);
+  }
+}

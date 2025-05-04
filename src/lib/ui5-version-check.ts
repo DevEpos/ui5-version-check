@@ -1,9 +1,10 @@
 import { ManifestCheckSummary, UI5AppManifest } from "./ui5-manifest";
-import { UI5Version, UI5VersionPatch, fetchMaintainedVersions } from "./ui5-version-api";
+import { UI5Versions, fetchMaintainedVersions, latestVersion } from "./ui5-version-api";
+import { getLogger } from "./utils";
 import { VersionValidator } from "./version-validation";
 
 type CheckSettings = {
-  repoPath: string;
+  basePath: string;
   manifestPaths: string[];
   fixOutdated: boolean;
   useLTS: boolean;
@@ -12,17 +13,17 @@ type CheckSettings = {
 };
 
 export class UI5VersionCheck {
-  private ui5Versions!: Map<string, UI5Version>;
-  private ui5Patches!: Map<string, UI5VersionPatch>;
+  private ui5Versions!: UI5Versions;
   private _updatedFiles: string[] = [];
   private errorCount = 0;
   private _summary: ManifestCheckSummary[] = [];
   private _newVersion: string | undefined;
   private opts: CheckSettings;
+  private logger = getLogger();
 
-  constructor(opts: Partial<CheckSettings> & Pick<CheckSettings, "repoPath" | "manifestPaths">) {
+  constructor(opts: Partial<CheckSettings> & Pick<CheckSettings, "basePath" | "manifestPaths">) {
     this.opts = {
-      repoPath: opts.repoPath,
+      basePath: opts.basePath,
       manifestPaths: opts.manifestPaths,
       allowedDaysBeforeEocp: opts.allowedDaysBeforeEocp ?? 30,
       useLTS: opts.useLTS ?? true,
@@ -32,15 +33,18 @@ export class UI5VersionCheck {
   }
 
   async run() {
-    const versions = await fetchMaintainedVersions();
-    this.ui5Versions = versions.versions;
-    this.ui5Patches = versions.patches;
+    this.logger.group("Loading UI5 versions");
+    this.ui5Versions = await fetchMaintainedVersions();
+    this.logger.info(`Found ${this.ui5Versions.versions.size} versions and ${this.ui5Versions.patches.size} patches`);
+    this.logger.groupEnd();
 
+    this.logger.group("Checking UI5 versions in manifest.json files");
     this.opts.manifestPaths.forEach((mp) => {
-      const manifest = new UI5AppManifest(this.opts.repoPath, mp);
+      const manifest = new UI5AppManifest(this.opts.basePath, mp);
       this.checkManifest(manifest);
       this._summary.push(manifest.getCheckSummary());
     });
+    this.logger.groupEnd();
   }
 
   get hasErrors() {
@@ -58,25 +62,14 @@ export class UI5VersionCheck {
   private get newVersion() {
     if (this._newVersion) return this._newVersion;
 
-    for (const [vId, v] of this.ui5Versions) {
-      if (v.eocp || v.eom) continue;
-      if (this.opts.useLTS && !v.lts) continue;
-      this._newVersion = vId;
-      break;
-    }
-
-    if (!this._newVersion) {
-      if (this.opts.useLTS) {
-        throw new Error(`No valid LTS UI5 version found to update`);
-      } else {
-        throw new Error(`No valid UI5 version found to update`);
-      }
-    }
+    this._newVersion = latestVersion(this.ui5Versions, this.opts.useLTS);
     return this._newVersion;
   }
 
   private checkManifest(manifest: UI5AppManifest) {
     if (!manifest?.version) return;
+
+    this.logger.info(`Checking version ${manifest.version.strVer} in manifest at ${manifest.relPath}`);
 
     const { valid, messages } = this.validateVersion(manifest);
 
@@ -103,13 +96,7 @@ export class UI5VersionCheck {
       /* istanbul ignore next */
       return { valid: false, messages: [] };
     } else {
-      const validator = new VersionValidator(
-        manifest.version,
-        this.ui5Versions,
-        this.ui5Patches,
-        this.opts.allowedDaysBeforeEocp,
-        this.opts.eomAllowed
-      );
+      const validator = new VersionValidator(manifest.version, this.ui5Versions, this.opts);
       return validator.validate();
     }
   }
