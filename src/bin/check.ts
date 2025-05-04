@@ -53,6 +53,8 @@ type CheckOptions = {
   useLTS: boolean;
 };
 
+type CliCheckOptions = Omit<CheckOptions, "manifestPaths"> & { manifestPaths: string };
+
 const optionArgs: ParseArgsConfig["options"] = {
   basePath: {
     type: "string",
@@ -77,11 +79,15 @@ const optionArgs: ParseArgsConfig["options"] = {
   }
 };
 
-function checkMandatory(opts: Partial<CheckOptions>) {
+function checkMandatory(opts: Partial<CliCheckOptions>) {
   if (!opts.basePath) throw new Error("Mandatory option 'basePath' not provided");
 }
 
 function printSummary(checkSummary: ManifestCheckSummary[]) {
+  if (!checkSummary?.length) {
+    return;
+  }
+
   console.log(
     `${checkSummary.filter((c) => c.status === "error").length} of ${checkSummary.length} manifest.json files contain version errors!\n`
   );
@@ -114,22 +120,29 @@ export default {
   help: () => console.log(helpText),
   exec: async () => {
     const optVals = parseArgs({ args: process.argv, options: optionArgs, allowPositionals: true })
-      .values as Partial<CheckOptions>;
+      .values as Partial<CliCheckOptions>;
+
     checkMandatory(optVals);
 
+    const allowedDaysBeforeEocp = parseInt(optVals.allowedDaysBeforeEocp as unknown as string);
     const checkOpts: CheckOptions = {
       basePath: path.resolve(optVals.basePath!),
-      manifestPaths: optVals.manifestPaths ?? ["**"],
+      manifestPaths: optVals.manifestPaths?.split(",") ?? ["**"],
       fix: !!optVals.fix,
       eomAllowed: !!optVals.eomAllowed,
       useLTS: !!optVals.useLTS,
-      allowedDaysBeforeEocp: parseInt(optVals.allowedDaysBeforeEocp as unknown as string) ?? 30
+      allowedDaysBeforeEocp: isNaN(allowedDaysBeforeEocp) ? 30 : allowedDaysBeforeEocp
     };
 
     const resolvedManifestPaths = await glob(
       checkOpts.manifestPaths.map((p) => p + "/manifest.json"),
       { cwd: checkOpts.basePath }
     );
+
+    if (!resolvedManifestPaths?.length) {
+      console.log("No manifest.json files found!");
+      return;
+    }
 
     const versionCheck = new UI5VersionCheck({
       repoPath: checkOpts.basePath,
@@ -140,18 +153,10 @@ export default {
       allowedDaysBeforeEocp: checkOpts.allowedDaysBeforeEocp
     });
 
-    versionCheck
-      .run()
-      .then(() => {
-        printSummary(versionCheck.summary);
-
-        if (versionCheck.hasErrors) {
-          process.exit(1);
-        }
-      })
-      .catch((e: Error) => {
-        console.error(e);
-        process.exit(1);
-      });
+    await versionCheck.run();
+    printSummary(versionCheck.summary);
+    if (versionCheck.hasErrors) {
+      process.exit(1);
+    }
   }
 };

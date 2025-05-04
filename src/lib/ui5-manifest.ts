@@ -15,7 +15,7 @@ export type ManifestCheckSummary = {
   oldVers: string;
   newVers: string;
   status: "error" | "warn" | "ok";
-  statusIcon: string;
+  statusIcon: "✅" | "⚠️" | "❌";
   statusText: string;
 };
 

@@ -15,5 +15,5 @@ ui5vc h <command>
 `;
 
 export default {
-  help: () => console.log(helpText)
+  exec: () => console.log(helpText)
 };

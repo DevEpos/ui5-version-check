@@ -12,7 +12,7 @@ SYNOPSIS
 
 export default {
   help: () => console.log(helpText),
-  exex: () => {
+  exec: () => {
     let packageJson: string;
     try {
       packageJson = readFileSync(path.join(__dirname, "..", "package.json"), { encoding: "utf8" });

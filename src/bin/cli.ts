@@ -8,13 +8,14 @@ const commands: {
   short: string;
   long: string;
   help: () => void;
-  exec?: () => void | Promise<void>;
+  exec: () => void | Promise<void>;
   isHelp?: boolean;
 }[] = [
   {
     short: "h",
     long: "help",
-    help: help.help,
+    help: help.exec,
+    exec: help.exec,
     isHelp: true
   },
   {
@@ -27,13 +28,13 @@ const commands: {
     short: "v",
     long: "version",
     help: versionCmd.help,
-    exec: versionCmd.exex
+    exec: versionCmd.exec
   }
 ];
 
 function unknownCmd(cmd: string) {
   console.error(`Unknown command ${cmd}`);
-  help.help();
+  help.exec();
 }
 
 function isHelp(cmd: string) {
@@ -44,10 +45,10 @@ function getCommand(cmd: string) {
   return commands.find(({ short, long }) => cmd === short || cmd === long);
 }
 
-function cli() {
+export async function cli() {
   if (process.argv.length <= 2) {
     console.error(`No valid command supplied`);
-    help.help();
+    help.exec();
     return;
   }
   const cmdName = process.argv[2];
@@ -60,7 +61,7 @@ function cli() {
         helpForCmd.help();
       }
     } else {
-      help.help();
+      help.exec();
       return;
     }
   } else {
@@ -69,7 +70,7 @@ function cli() {
       unknownCmd(cmdName);
     } else {
       try {
-        cmd.exec?.();
+        await cmd.exec();
       } catch (e) {
         console.error(`Error during executing command '${cmd.long}'`);
         console.error((e as Error).message);
