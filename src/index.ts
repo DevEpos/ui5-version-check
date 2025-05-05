@@ -1,24 +1,26 @@
+import { ManifestCheckSummary } from "./lib/ui5-manifest";
 import {
+  BaseVersionInfo,
   fetchMaintainedVersions,
   latestVersion,
-  UI5Versions,
   UI5Version,
-  UI5VersionPatch
+  UI5VersionPatch,
+  UI5Versions
 } from "./lib/ui5-version-api";
 import { UI5VersionCheck } from "./lib/ui5-version-check";
-import { ManifestCheckSummary } from "./lib/ui5-manifest";
-import { VersionValidator, UI5VersionInfo, validateVersion, parseVersion } from "./lib/version-validation";
-import { getLogger, setLogger, Logger } from "./lib/utils";
+import { getLogger, Logger, setLogger } from "./lib/utils";
+import { parseVersion, UI5VersionInfo, validateVersion, VersionValidator } from "./lib/version-validation";
 
 export {
+  BaseVersionInfo,
   fetchMaintainedVersions,
-  UI5VersionCheck,
-  VersionValidator,
-  validateVersion,
-  parseVersion,
+  getLogger,
   latestVersion,
+  parseVersion,
   setLogger,
-  getLogger
+  UI5VersionCheck,
+  validateVersion,
+  VersionValidator
 };
 
-export type { ManifestCheckSummary, UI5Versions, UI5Version, UI5VersionPatch, UI5VersionInfo, Logger };
+export type { Logger, ManifestCheckSummary, UI5Version, UI5VersionInfo, UI5VersionPatch, UI5Versions };
