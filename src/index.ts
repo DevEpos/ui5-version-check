@@ -8,7 +8,7 @@ import {
 import { UI5VersionCheck } from "./lib/ui5-version-check";
 import { ManifestCheckSummary } from "./lib/ui5-manifest";
 import { VersionValidator, UI5VersionInfo, validateVersion, parseVersion } from "./lib/version-validation";
-import { getLogger, setLogger } from "./lib/utils";
+import { getLogger, setLogger, Logger } from "./lib/utils";
 
 export {
   fetchMaintainedVersions,
@@ -21,4 +21,4 @@ export {
   getLogger
 };
 
-export type { ManifestCheckSummary, UI5Versions, UI5Version, UI5VersionPatch, UI5VersionInfo };
+export type { ManifestCheckSummary, UI5Versions, UI5Version, UI5VersionPatch, UI5VersionInfo, Logger };

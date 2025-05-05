@@ -1,0 +1,9 @@
+// typedoc.json
+{
+    "includeVersion": true,
+    "name": "UI5 Version Check",
+    "navigationLinks": {
+        "GitHub": "https://github.com/DevEpos/ui5-version-check",
+        "DevEpos": "http://devepos.com"
+    }
+}
