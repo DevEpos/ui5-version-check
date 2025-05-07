@@ -2,9 +2,26 @@ import * as semver from "semver";
 import { isPromise } from "util/types";
 import { BaseVersionInfo, fetchMaintainedVersions, isUI5VersionList, UI5Versions } from "./ui5-version-api";
 
+/**
+ * Validation message that occurs during version validation
+ */
 export type ValidationMessage = {
+  /** Message */
   msg: string;
+  /** Message type */
   type: "warn" | "error";
+};
+
+/**
+ * Validation result for a UI5 version
+ */
+export type ValidationResult = {
+  /** Version that has been validated */
+  version: string;
+  /** Indicates if the version if valid or not */
+  valid: boolean;
+  /** List of validation message */
+  messages: ValidationMessage[];
 };
 
 /**
@@ -21,21 +38,40 @@ export type UI5VersionInfo = {
   toPatchUpdateVers: () => string;
 };
 
-type VersionValidationOptions = {
+/**
+ * Configurable options for version validation
+ */
+export type VersionValidationOptions = {
+  /** Number of allowed days before eocp is considered an error (default: 30) */
   allowedDaysBeforeEocp: number;
+  /** Indicates whether or not out of maintenance versions are considered invalid */
   eomAllowed: boolean;
 };
 
+/**
+ * Allows validation for a given UI5 version
+ */
 export class VersionValidator {
   private isValid = false;
   private messages: ValidationMessage[] = [];
 
+  /**
+   * Creates new instance of a VersionValidator
+   * @param version contains information for a UI5 version
+   * @param versionOverview list of UI5 versions and patches
+   * @param opts options to configure the version validation
+   */
   constructor(
     private version: UI5VersionInfo,
     private versionOverview: UI5Versions,
     private opts: VersionValidationOptions
   ) {}
 
+  /**
+   * Validates the UI5 version passed in the constructor
+   *
+   * @returns validation result
+   */
   validate() {
     if (this.version.patchUpdates) {
       this.validatePatchUpdateVersion();
@@ -135,34 +171,59 @@ export function parseVersion(v: string): UI5VersionInfo {
   };
 }
 
-type ValidationResult = { version: string } & ReturnType<VersionValidator["validate"]>;
-
 /**
  * Verifies if the passed version is still a valid UI5 version
  *
- * @param v version string or array of version strings (e.g. 1.71.1, 1.120.*)
+ * @param version version string (e.g. 1.71.1, 1.120.*)
  * @param opts validation options
  * @param opts.allowedDaysBeforeEocp number of days that are allowed before the actual eocp date
  * @param opts.eomAllowed indicates whether out of maintenance versions are allowed or not
- * @returns Promise with check resu
+ * @returns Promise with check result
  */
-export async function validateVersion(
-  version: string | string[],
+export function validateVersion(version: string, opts?: Partial<VersionValidationOptions>): Promise<ValidationResult>;
+
+/**
+ * Verifies if the passed versions are still valid UI5 versions
+ *
+ * @param version array of version strings (e.g. 1.71.1, 1.120.*)
+ * @param opts validation options
+ * @param opts.allowedDaysBeforeEocp number of days that are allowed before the actual eocp date
+ * @param opts.eomAllowed indicates whether out of maintenance versions are allowed or not
+ * @returns Promise with check results
+ */
+export function validateVersion(
+  version: string[],
   opts?: Partial<VersionValidationOptions>
 ): Promise<ValidationResult[]>;
 
 /**
  * Verifies if the passed version is still a valid UI5 version
  *
- * @param v version string or array of version strings (e.g. 1.71.1, 1.120.*)
+ * @param version version string (e.g. 1.71.1, 1.120.*)
  * @param ui5Versions list of valid UI5 versions and patches
  * @param opts validation options
  * @param opts.allowedDaysBeforeEocp number of days that are allowed before the actual eocp date
  * @param opts.eomAllowed indicates whether out of maintenance versions are allowed or not
- * @returns Promise with check resu
+ * @returns check result
  */
 export function validateVersion(
-  version: string | string[],
+  version: string,
+  ui5Versions: UI5Versions,
+  opts?: Partial<VersionValidationOptions>
+): ValidationResult;
+
+/**
+ * Verifies if the passed versions are still valid UI5 versions
+ *
+ * @param version array of version strings (e.g. 1.71.1, 1.120.*)
+ * @param ui5Versions list of valid UI5 versions and patches
+ * @param opts validation options
+ * @param opts.allowedDaysBeforeEocp number of days that are allowed before the actual eocp date
+ * @param opts.eomAllowed indicates whether out of maintenance versions are allowed or not
+ * @returns check results
+ */
+export function validateVersion(
+  version: string[],
   ui5Versions: UI5Versions,
   opts?: Partial<VersionValidationOptions>
 ): ValidationResult[];
@@ -171,7 +232,7 @@ export function validateVersion(
   version: string | string[],
   ui5VersionsOrOpts?: UI5Versions | Partial<VersionValidationOptions>,
   opts?: Partial<VersionValidationOptions>
-): Promise<ValidationResult[]> | ValidationResult[] {
+): Promise<ValidationResult | ValidationResult[]> | (ValidationResult | ValidationResult[]) {
   let versionOverview: UI5Versions | Promise<UI5Versions>;
   let validationOptions: VersionValidationOptions;
 
@@ -191,15 +252,15 @@ export function validateVersion(
 
   const versions = typeof version === "string" ? [version] : version;
 
+  const validate = (ui5Versions: UI5Versions) => {
+    const validationResults = versions.map((x) => ({
+      version: x,
+      ...new VersionValidator(parseVersion(x), ui5Versions, validationOptions).validate()
+    }));
+    return typeof version === "string" ? validationResults[0] : validationResults;
+  };
+
   return isPromise(versionOverview)
-    ? (versionOverview.then((fetchedVersions) =>
-        versions.map((x) => ({
-          version: x,
-          ...new VersionValidator(parseVersion(x), fetchedVersions, validationOptions).validate()
-        }))
-      ) as Promise<ValidationResult[]>)
-    : versions.map((x) => ({
-        version: x,
-        ...new VersionValidator(parseVersion(x), versionOverview, validationOptions).validate()
-      }));
+    ? versionOverview.then((fetchedVersions) => validate(fetchedVersions))
+    : validate(versionOverview);
 }

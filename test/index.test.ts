@@ -1,43 +1,36 @@
+import { SemVer } from "semver";
 import * as index from "../src/index";
 
 describe("index.ts", () => {
-  it("should export fetchMaintainedVersions", () => {
-    expect(index.fetchMaintainedVersions).toBeDefined();
-    expect(typeof index.fetchMaintainedVersions).toBe("function");
+  it("should export a list of types", () => {
+    <index.ValidationResult>{ version: "", valid: false, messages: [] };
+    <index.VersionValidationOptions>{};
+    <index.ManifestCheckSummary>{ newVers: "", oldVers: "", relPath: "", status: "warn", statusIcon: "⚠️" };
+    <index.CheckSettings>{ allowedDaysBeforeEocp: 0, basePath: "", eomAllowed: false, fixOutdated: false, manifestPaths: [], useLTS: false };
+    <index.Logger>{ error: () => {}, group: () => {}, groupEnd: () => {}, info: () => {}, notice: () => {}, warn: () => {} };
+    <index.UI5VersionInfo>{ patchUpdates: true, semver: {} as SemVer, strVer: "", toPatchUpdateVers: () => "" };
+    <index.UI5Versions>{ patches: new Map(), versions: new Map() };
+    <index.ValidationMessage>{ msg: "", type: "error" };
+    expect(true).toBe(true);
   });
+  it("should export expected list", () => {
+    const expectedExport = [
+      "BaseVersionInfo",
+      "UI5Version",
+      "UI5VersionCheck",
+      "UI5VersionPatch",
+      "VersionValidator",
+      "fetchMaintainedVersions",
+      "getLogger",
+      "latestVersion",
+      "parseVersion",
+      "setLogger",
+      "validateVersion"
+    ];
 
-  it("should export UI5VersionCheck", () => {
-    expect(index.UI5VersionCheck).toBeDefined();
-    expect(typeof index.UI5VersionCheck).toBe("function");
-  });
-
-  it("should export VersionValidator", () => {
-    expect(index.VersionValidator).toBeDefined();
-    expect(typeof index.VersionValidator).toBe("function");
-  });
-
-  it("should export validateVersion", () => {
-    expect(index.validateVersion).toBeDefined();
-    expect(typeof index.validateVersion).toBe("function");
-  });
-
-  it("should export parseVersion", () => {
-    expect(index.parseVersion).toBeDefined();
-    expect(typeof index.parseVersion).toBe("function");
-  });
-
-  it("should export latestVersion", () => {
-    expect(index.latestVersion).toBeDefined();
-    expect(typeof index.latestVersion).toBe("function");
-  });
-
-  it("should export getLogger", () => {
-    expect(index.getLogger).toBeDefined();
-    expect(typeof index.getLogger).toBe("function");
-  });
-
-  it("should export setLogger", () => {
-    expect(index.setLogger).toBeDefined();
-    expect(typeof index.setLogger).toBe("function");
+    expectedExport.forEach((exp) => {
+      expect(index[exp]).toBeDefined();
+      expect(typeof index[exp]).toBe("function");
+    });
   });
 });

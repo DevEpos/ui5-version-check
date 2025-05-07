@@ -3,15 +3,27 @@ import { UI5Versions, fetchMaintainedVersions, latestVersion } from "./ui5-versi
 import { getLogger } from "./utils";
 import { VersionValidator } from "./version-validation";
 
-type CheckSettings = {
+export type CheckSettings = {
+  /** base path */
   basePath: string;
+  /** relative paths of `manifest.json` files (starting from the `basePath`) */
   manifestPaths: string[];
+  /** If `true` the invalid/outdated UI5 versions will be fixed */
   fixOutdated: boolean;
+  /** If `true`, the latest LTS will be used as the new version */
   useLTS: boolean;
+  /** If `true` version that have reached end of maintenance will not trigger an error */
   eomAllowed: boolean;
+  /** Number of days that are allowed before the actual end of cloud provisioning */
   allowedDaysBeforeEocp: number;
 };
 
+/**
+ * Allows the check and/or fixing of invalid UI5 versions.
+ *
+ * **NOTE:**<br>
+ * Currently only a list of `manifest.json` files can checked
+ */
 export class UI5VersionCheck {
   private ui5Versions!: UI5Versions;
   private _updatedFiles: string[] = [];
@@ -21,6 +33,10 @@ export class UI5VersionCheck {
   private opts: CheckSettings;
   private logger = getLogger();
 
+  /**
+   * Creates new instance for running a UI5 version check
+   * @param opts - Settings for Check
+   */
   constructor(opts: Partial<CheckSettings> & Pick<CheckSettings, "basePath" | "manifestPaths">) {
     this.opts = {
       basePath: opts.basePath,
@@ -32,6 +48,10 @@ export class UI5VersionCheck {
     };
   }
 
+  /**
+   * Executes the version check for the given `manifest.json` files
+   * in the constructor.
+   */
   async run() {
     this.logger.group("Loading UI5 versions");
     this.ui5Versions = await fetchMaintainedVersions();
@@ -47,14 +67,23 @@ export class UI5VersionCheck {
     this.logger.groupEnd();
   }
 
+  /**
+   * Returns `true` if errors occurred during the check
+   */
   get hasErrors() {
     return this.errorCount > 0;
   }
 
+  /**
+   * Returns array of check summarys
+   */
   get summary() {
     return this._summary;
   }
 
+  /**
+   * Returns list of updated `manifest.json` file paths (relative to base path).
+   */
   get updatedFiles() {
     return this._updatedFiles;
   }
