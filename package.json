@@ -29,6 +29,7 @@
     "format": "prettier --write .",
     "lint": "eslint .",
     "publish": "./scripts/publish.sh",
+    "release": "release-it",
     "test": "npm run lint && npm run build && npm run test:run",
     "test:run": "jest"
   },

@@ -19,6 +19,7 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm ci
@@ -30,7 +31,7 @@ jobs:
 
       - name: Release to GitHub and NPM
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "${{ github.event.inputs.version }}" != "" ]; then
