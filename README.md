@@ -30,48 +30,45 @@ ui5vc help <command>
 ui5vc h <command>
 ```
 
-Where the `check` command has the following options:
+The `check` command allows the validation and fixing of UI5 versions in `manifest.json` files in the section `sap.platform.cf/ui5VersionNumber`.
+
+### Options for the `check` command
 
 ```
-SYNOPSIS
+-p | --basePath <path>
 
-    ui5vc check <options>
-    ui5vc c <options>
+    Base path to start 
 
-    Checks the validity of UI5 versions. Via the option '--fix' it also possible
-    to correct invalid versions
+-m | --manifestPaths <paths>
 
-OPTIONS
+    Paths to manifest.json files. If ommitted every manifest.json file starting from the
+    provided basePath will be checked
 
-    -p | --basePath <path>
+--allowedDaysBeforeEocp
 
-        Base path to start 
+    Number of allowed days before the end of eocp quarter (e.g. Q1/2024).
+    The default for this option is 30 days
 
-    -m | --manifestPaths <paths>
+-f | --fix
 
-        Paths to manifest.json files. If ommitted every manifest.json file starting from the
-        provided basePath will be checked
+    If provided outdated versions are automatically fixed
 
-    --allowedDaysBeforeEocp
+--useLTS
 
-        Number of allowed days before the end of eocp quarter (e.g. Q1/2024).
-        The default for this option is 30 days
+    If provided, outdated versions are updated with the latest available
+    LTS version.
 
-    -f | --fix
+--eomAllowed
 
-        If provided outdated versions are automatically fixed
-
-    --useLTS
-
-        If provided, outdated versions are updated with the latest available
-        LTS version.
-
-    --eomAllowed
-
-        If provided, versions that reached only the status "End of Maintenance"
-        will produce warnings only and not result in an exit code <> 0.
+    If provided, versions that reached only the status "End of Maintenance"
+    will produce warnings only and not result in an exit code <> 0.
 ```
 
-## License
+## JavaScript API
 
-This project is [licensed](./LICENSE) under MIT.
+Alongside the CLI there is also a public [API](https://devepos.com/ui5-version-check) in this package, so the version check can be easily used in other tooling.
+
+### Packages that use the API
+
+- [check-outdated-ui5-version](https://github.com/DevEpos/check-outdated-ui5-version)  
+  GitHub Action to Check/update UI5 versions for use in Cloud Foundry
