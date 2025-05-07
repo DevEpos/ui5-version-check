@@ -14,9 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Setup node
         uses: actions/setup-node@v4
         with:
@@ -33,7 +30,8 @@ jobs:
 
       - name: Release to GitHub and NPM
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "${{ github.event.inputs.version }}" != "" ]; then
             npx release-it ${{ github.event.inputs.version }} --ci
