@@ -174,29 +174,56 @@ export function parseVersion(v: string): UI5VersionInfo {
 /**
  * Verifies if the passed version is still a valid UI5 version
  *
- * @param version version string or array of version strings (e.g. 1.71.1, 1.120.*)
+ * @param version version string (e.g. 1.71.1, 1.120.*)
  * @param opts validation options
  * @param opts.allowedDaysBeforeEocp number of days that are allowed before the actual eocp date
  * @param opts.eomAllowed indicates whether out of maintenance versions are allowed or not
  * @returns Promise with check result
  */
-export async function validateVersion(
-  version: string | string[],
+export function validateVersion(version: string, opts?: Partial<VersionValidationOptions>): Promise<ValidationResult>;
+
+/**
+ * Verifies if the passed versions are still valid UI5 versions
+ *
+ * @param version array of version strings (e.g. 1.71.1, 1.120.*)
+ * @param opts validation options
+ * @param opts.allowedDaysBeforeEocp number of days that are allowed before the actual eocp date
+ * @param opts.eomAllowed indicates whether out of maintenance versions are allowed or not
+ * @returns Promise with check results
+ */
+export function validateVersion(
+  version: string[],
   opts?: Partial<VersionValidationOptions>
 ): Promise<ValidationResult[]>;
 
 /**
  * Verifies if the passed version is still a valid UI5 version
  *
- * @param version version string or array of version strings (e.g. 1.71.1, 1.120.*)
+ * @param version version string (e.g. 1.71.1, 1.120.*)
  * @param ui5Versions list of valid UI5 versions and patches
  * @param opts validation options
  * @param opts.allowedDaysBeforeEocp number of days that are allowed before the actual eocp date
  * @param opts.eomAllowed indicates whether out of maintenance versions are allowed or not
- * @returns Promise with check result
+ * @returns check result
  */
 export function validateVersion(
-  version: string | string[],
+  version: string,
+  ui5Versions: UI5Versions,
+  opts?: Partial<VersionValidationOptions>
+): ValidationResult;
+
+/**
+ * Verifies if the passed versions are still valid UI5 versions
+ *
+ * @param version array of version strings (e.g. 1.71.1, 1.120.*)
+ * @param ui5Versions list of valid UI5 versions and patches
+ * @param opts validation options
+ * @param opts.allowedDaysBeforeEocp number of days that are allowed before the actual eocp date
+ * @param opts.eomAllowed indicates whether out of maintenance versions are allowed or not
+ * @returns check results
+ */
+export function validateVersion(
+  version: string[],
   ui5Versions: UI5Versions,
   opts?: Partial<VersionValidationOptions>
 ): ValidationResult[];
@@ -205,7 +232,7 @@ export function validateVersion(
   version: string | string[],
   ui5VersionsOrOpts?: UI5Versions | Partial<VersionValidationOptions>,
   opts?: Partial<VersionValidationOptions>
-): Promise<ValidationResult[]> | ValidationResult[] {
+): Promise<ValidationResult | ValidationResult[]> | (ValidationResult | ValidationResult[]) {
   let versionOverview: UI5Versions | Promise<UI5Versions>;
   let validationOptions: VersionValidationOptions;
 
@@ -225,15 +252,15 @@ export function validateVersion(
 
   const versions = typeof version === "string" ? [version] : version;
 
+  const validate = (ui5Versions: UI5Versions) => {
+    const validationResults = versions.map((x) => ({
+      version: x,
+      ...new VersionValidator(parseVersion(x), ui5Versions, validationOptions).validate()
+    }));
+    return typeof version === "string" ? validationResults[0] : validationResults;
+  };
+
   return isPromise(versionOverview)
-    ? (versionOverview.then((fetchedVersions) =>
-        versions.map((x) => ({
-          version: x,
-          ...new VersionValidator(parseVersion(x), fetchedVersions, validationOptions).validate()
-        }))
-      ) as Promise<ValidationResult[]>)
-    : versions.map((x) => ({
-        version: x,
-        ...new VersionValidator(parseVersion(x), versionOverview, validationOptions).validate()
-      }));
+    ? versionOverview.then((fetchedVersions) => validate(fetchedVersions))
+    : validate(versionOverview);
 }

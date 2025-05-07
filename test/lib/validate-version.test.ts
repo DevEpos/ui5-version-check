@@ -20,13 +20,11 @@ describe("validateVersion", () => {
 
     const result = await validateVersion("1.117.1", { allowedDaysBeforeEocp: 30, eomAllowed: true });
 
-    expect(result).toEqual([
-      {
-        version: "1.117.1",
-        valid: true,
-        messages: []
-      }
-    ]);
+    expect(result).toEqual({
+      version: "1.117.1",
+      valid: true,
+      messages: []
+    });
   });
 
   it("should validate multiple versions and detect invalid ones", async () => {
@@ -64,18 +62,16 @@ describe("validateVersion", () => {
 
     const result = await validateVersion("1.117.1", { allowedDaysBeforeEocp: 30, eomAllowed: true });
 
-    expect(result).toEqual([
-      {
-        version: "1.117.1",
-        valid: true,
-        messages: [
-          {
-            msg: "Version reached end of maintenance!",
-            type: "warn"
-          }
-        ]
-      }
-    ]);
+    expect(result).toEqual({
+      version: "1.117.1",
+      valid: true,
+      messages: [
+        {
+          msg: "Version reached end of maintenance!",
+          type: "warn"
+        }
+      ]
+    });
   });
 
   it("should handle versions that have reached EOM when EOM is not allowed", async () => {
@@ -86,23 +82,22 @@ describe("validateVersion", () => {
 
     const result = await validateVersion("1.117.1", { allowedDaysBeforeEocp: 30, eomAllowed: false });
 
-    expect(result).toEqual([
-      {
-        version: "1.117.1",
-        valid: false,
-        messages: [
-          {
-            msg: "Version reached end of maintenance!",
-            type: "error"
-          }
-        ]
-      }
-    ]);
+    expect(result).toEqual({
+      version: "1.117.1",
+      valid: false,
+      messages: [
+        {
+          msg: "Version reached end of maintenance!",
+          type: "error"
+        }
+      ]
+    });
   });
 
   it("should handle versions that have reached EOM when EOM is not allowed (non promise function)", () => {
     const vutStr = "1.117.*";
     const vutSemver = semver.coerce(vutStr);
+
     const result = validateVersion(
       "1.117.1",
       {
@@ -112,21 +107,19 @@ describe("validateVersion", () => {
       { allowedDaysBeforeEocp: 30, eomAllowed: false }
     );
 
-    expect(result).toEqual([
-      {
-        version: "1.117.1",
-        valid: false,
-        messages: [
-          {
-            msg: "Version reached end of maintenance!",
-            type: "error"
-          }
-        ]
-      }
-    ]);
+    expect(result).toEqual({
+      version: "1.117.1",
+      valid: false,
+      messages: [
+        {
+          msg: "Version reached end of maintenance!",
+          type: "error"
+        }
+      ]
+    });
   });
 
-  it("should use default options during validation (non promise variant)", () => {
+  it("should use default options during validation (non promise function)", () => {
     const vutStr = "1.117.*";
     const vutSemver = semver.coerce(vutStr);
     const result = validateVersion("1.117.1", {
@@ -134,18 +127,16 @@ describe("validateVersion", () => {
       patches: new Map([["1.117.1", new UI5VersionPatch(semver.coerce("1.117.1")!, "Q1/2026")]])
     });
 
-    expect(result).toEqual([
-      {
-        version: "1.117.1",
-        valid: true,
-        messages: [
-          {
-            msg: "Version reached end of maintenance!",
-            type: "warn"
-          }
-        ]
-      }
-    ]);
+    expect(result).toEqual({
+      version: "1.117.1",
+      valid: true,
+      messages: [
+        {
+          msg: "Version reached end of maintenance!",
+          type: "warn"
+        }
+      ]
+    });
   });
 
   it("should use default options during validation (promise variant)", async () => {
@@ -155,17 +146,15 @@ describe("validateVersion", () => {
     });
     const result = await validateVersion("1.117.1");
 
-    expect(result).toEqual([
-      {
-        version: "1.117.1",
-        valid: true,
-        messages: [
-          {
-            msg: "Version reached end of maintenance!",
-            type: "warn"
-          }
-        ]
-      }
-    ]);
+    expect(result).toEqual({
+      version: "1.117.1",
+      valid: true,
+      messages: [
+        {
+          msg: "Version reached end of maintenance!",
+          type: "warn"
+        }
+      ]
+    });
   });
 });
