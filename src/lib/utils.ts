@@ -1,5 +1,8 @@
 let logger: Logger | undefined;
 
+/**
+ * Logger which wraps some of the methods from `console`.
+ */
 export type Logger = Pick<typeof console, "info" | "group" | "groupEnd" | "warn" | "error"> & {
   notice: (typeof console)["info"];
 };
