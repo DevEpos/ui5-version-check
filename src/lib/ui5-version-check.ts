@@ -34,7 +34,7 @@ export class UI5VersionCheck {
   private logger = getLogger();
 
   /**
-   *
+   * Creates new instance for running a UI5 version check
    * @param opts - Settings for Check
    */
   constructor(opts: Partial<CheckSettings> & Pick<CheckSettings, "basePath" | "manifestPaths">) {
@@ -48,6 +48,10 @@ export class UI5VersionCheck {
     };
   }
 
+  /**
+   * Executes the version check for the given `manifest.json` files
+   * in the constructor.
+   */
   async run() {
     this.logger.group("Loading UI5 versions");
     this.ui5Versions = await fetchMaintainedVersions();
@@ -63,14 +67,23 @@ export class UI5VersionCheck {
     this.logger.groupEnd();
   }
 
+  /**
+   * Returns `true` if errors occurred during the check
+   */
   get hasErrors() {
     return this.errorCount > 0;
   }
 
+  /**
+   * Returns array of check summarys
+   */
   get summary() {
     return this._summary;
   }
 
+  /**
+   * Returns list of updated `manifest.json` file paths (relative to base path).
+   */
   get updatedFiles() {
     return this._updatedFiles;
   }

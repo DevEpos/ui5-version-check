@@ -26,13 +26,26 @@ type EocpInfo = {
   eocpDate: Date;
 };
 
+/**
+ * List of maintained UI5 versions including all valid patches
+ */
 export type UI5Versions = {
+  /**
+   * Map of UI5 versions where the key follows the pattern `1.120.*`
+   */
   versions: Map<string, UI5Version>;
+  /**
+   * Map of UI5 version patches where the key follows the pattern `1.120.1`
+   */
   patches: Map<string, UI5VersionPatch>;
 };
 
 /**
- * @returns array of valid UI5 versions to be used in SAP BTP
+ * Fetches a list of valid/maintained SAPUI5 versions
+ *
+ * @returns collection of valid versions and patches
+ *
+ * @see https://ui5.sap.com/versionoverview.html
  */
 export async function fetchMaintainedVersions(): Promise<UI5Versions> {
   const res = await fetch(VERSION_OVERVIEW_URL);
@@ -56,9 +69,13 @@ export async function fetchMaintainedVersions(): Promise<UI5Versions> {
   return { versions: versionMap, patches: patchMap };
 }
 
+/**
+ * Base class to represent a UI5 version
+ */
 export abstract class BaseVersionInfo {
   private static quarterToEocpInfo = new Map<string, EocpInfo>();
   private eocpYearQuarter: string;
+  /** parsed semantic version representation */
   semver: semver.SemVer;
 
   constructor(semver: semver.SemVer, eocp: string) {
@@ -66,18 +83,33 @@ export abstract class BaseVersionInfo {
     this.eocpYearQuarter = eocp;
   }
 
+  /**
+   * Returns `true` if version has reached end of cloud provisioning
+   */
   get eocp(): boolean {
     return !!this.checkEocp()?.eocp;
   }
 
+  /**
+   * Returns the actual date when end of cloud provisioning is reached
+   */
   get eocpDate(): Date | undefined {
     return this.checkEocp()?.eocpDate;
   }
 
+  /**
+   * Returns `true` if the version reached the last year quarter before it is deprovisioned
+   */
   get isInEocpQuarter(): boolean {
     return !!this.checkEocp()?.inEocpQuarter;
   }
 
+  /**
+   * Returns the remaining number of days before end of cloud provisioning.
+   *
+   * **NOTE**:<br>
+   * If the eocp quarter has not been reached yet, the return value is `-1`.
+   */
   get remainingDaysToEocp(): number | undefined {
     return this.checkEocp()?.remainingDaysToEocp;
   }
@@ -112,8 +144,13 @@ export abstract class BaseVersionInfo {
   }
 }
 
+/**
+ * UI5 version representation
+ */
 export class UI5Version extends BaseVersionInfo {
+  /** Indicates if the version has long term support */
   lts: boolean;
+  /** Indicates if the version has reached end of maintenance */
   eom: boolean;
   constructor(semver: semver.SemVer, eocp: string, lts: boolean, eom: boolean) {
     super(semver, eocp);
@@ -122,6 +159,9 @@ export class UI5Version extends BaseVersionInfo {
   }
 }
 
+/**
+ * UI5 version patch representation
+ */
 export class UI5VersionPatch extends BaseVersionInfo {}
 
 export const isUI5VersionList = (obj: unknown): obj is UI5Versions =>
