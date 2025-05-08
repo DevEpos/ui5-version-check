@@ -72,3 +72,96 @@ Alongside the CLI there is also a public [API](https://devepos.com/ui5-version-c
 
 - [check-outdated-ui5-version](https://github.com/DevEpos/check-outdated-ui5-version)  
   GitHub Action to Check/update UI5 versions for use in Cloud Foundry
+
+## Usage in CI/CD Environments
+
+### GitHub
+
+Use the available GitHub Action [check-outdated-ui5-version](https://github.com/DevEpos/check-outdated-ui5-version)
+
+### GitLab
+  
+You can utilize the CLI to setup a custom pipeline to check/fix outdated UI5 versions in `manifest.json`
+
+#### Example to check on push or merge request to default branch
+
+```yaml
+stages:
+  - check_ui5  
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && ( $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main" )
+      when: always
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "hotfix"
+      when: always
+    - when: never
+
+"Check for outdated UI5 Versions":
+  stage: check_ui5
+  image: node:22-alpine 
+  before_script: |
+    npm i -g ui5-version-check@0.2.0
+  script: |
+    ui5vc c -p .
+```
+
+#### Example to periodically update outdated versions via merge request
+
+In GitLab the schedule is defined via a custom setting under menu `Build` of the repository. To only run the stages during the scheduled execution you can add a custom variable (e.g. `UI5_VERSION_UPDATE`) to the schedule.
+
+```yaml
+stages:
+  - fix_ui5
+  - create_mr_for_version_fix
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && ( $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "hotfix" )
+      when: always
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "hotfix"
+      when: always
+    - when: never
+
+variables:
+  GIT_AUTHOR_NAME: "CI Bot"
+  GIT_AUTHOR_EMAIL: "ci@example.com"
+  GIT_COMMITTER_NAME: "CI Bot"
+  GIT_COMMITTER_EMAIL: "ci@example.com"
+
+"Fix outdated UI5 Versions":
+  stage: fix_ui5
+  image: node:22-alpine
+  rules:
+    - if: $UI5_VERSION_UPDATE
+      when: always
+    - when: never
+  before_script: |
+    npm i -g ui5-version-check@0.2.0
+    apk add --no-cache git curl bash
+    git config --global user.email "$GIT_AUTHOR_EMAIL"
+    git config --global user.name "$GIT_AUTHOR_NAME"
+    git remote set-url origin https://oauth2:${AUTOMATION_TOKEN}@${CI_PROJECT_URL#https://}.git
+  script: |
+    git checkout -b chore/fix-ui5-versions
+    ui5vc c -p . -f
+    git add -A
+    git commit -m"chore: fixes outdated ui5 versions"
+    git push origin HEAD:chore/fix-ui5-versions
+
+"Create MR to fix UI5 Versions":
+  stage: create_mr_for_version_fix
+  image: curlimages/curl:latest
+  rules:
+    - if: '$UI5_VERSION_UPDATE'
+      when: always
+    - when: never  
+  script:
+    - |
+      curl --request POST "https://$CI_SERVER_HOST/api/v4/projects/$CI_PROJECT_ID/merge_requests" \
+        --header "PRIVATE-TOKEN: $AUTOMATION_TOKEN" \
+        --form "source_branch=chore/fix-ui5-versions" \
+        --form "target_branch=main" \
+        --form "title=CI: Update UI5 versions"
+
+```
